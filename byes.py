@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.naive_bayes import GaussianNB
 from create_feature import chem_feature
+from read_pdb import all
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
@@ -15,16 +16,17 @@ from sklearn.preprocessing import PowerTransformer  # 用于数据分布调整
 from sklearn.pipeline import Pipeline
 import csv
 
+
 # #单亚型内交叉验证
 
-def five_fold(X,y,n_splits):
+def five_fold(X, y, n_splits):
     # 初始化StratifiedKFold
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
-    acc,recall,precision,f1,auc=0,0,0,0,0
+    acc, recall, precision, f1, auc = 0, 0, 0, 0, 0
     # 进行交叉验证
     for fold, (train_idx, test_idx) in enumerate(skf.split(X, y)):
-        train_X,train_y=X[train_idx],y[train_idx]
-        test_X,test_y=X[test_idx],y[test_idx]
+        train_X, train_y = X[train_idx], y[train_idx]
+        test_X, test_y = X[test_idx], y[test_idx]
         gnb = GaussianNB()
 
         # 训练模型
@@ -34,17 +36,17 @@ def five_fold(X,y,n_splits):
         pred_proba_y = gnb.predict_proba(test_X)[:, 1]  # 概率预测(用于AUC计算)
         # 计算各项指标
         acc += accuracy_score(test_y, pred_y)
-        recall+=recall_score(test_y,pred_y)
-        precision+=precision_score(test_y,pred_y,zero_division=0)
-        f1+=f1_score(test_y,pred_y)
-        auc+=roc_auc_score(test_y,pred_proba_y)
-    acc/=n_splits
-    recall/=n_splits
-    precision/=n_splits
-    f1/=n_splits
-    auc/=n_splits
+        recall += recall_score(test_y, pred_y)
+        precision += precision_score(test_y, pred_y, zero_division=0)
+        f1 += f1_score(test_y, pred_y)
+        auc += roc_auc_score(test_y, pred_proba_y)
+    acc /= n_splits
+    recall /= n_splits
+    precision /= n_splits
+    f1 /= n_splits
+    auc /= n_splits
 
-    return {'param':'','accuracy':acc,'auc':auc,'precision':precision,'recall':recall,'f1':f1}
+    return {'param': '', 'accuracy': acc, 'auc': auc, 'precision': precision, 'recall': recall, 'f1': f1}
 
 
 def cross_subtype(train_X, train_y, val_test_X, val_test_y):
@@ -137,7 +139,7 @@ H5_list = [k for k, v in sorted(H5_dist.items(), key=lambda item: item[1])]
 intersection_H1 = list(set(sorted(H1_list[0:320])[0:190]) & set(H1_list[0:90]))
 intersection_H3 = list(set(sorted(H3_list[0:320])[0:190]) & set(H3_list[0:90]))
 intersection_H5 = list(set(sorted(H5_list[0:320])[0:190]) & set(H5_list[0:90]))
-save_list = [f'algorithm,num,model,param,accuracy,precision,recall,f1,auc']
+save_list = []
 
 # 获取特征矩阵
 H1_X, H1_y = chem_feature('H1N1')
@@ -146,7 +148,6 @@ H5_X, H5_y = chem_feature('H5N1')
 
 
 def all_experiment(num, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y):
-
     # 取前n个位置,再按原来的相对顺序
     H1_X, H1_y = H1_X[:, sorted(H1_list[0:num]), :], H1_y
     H3_X, H3_y = H3_X[:, sorted(H3_list[0:num]), :], H3_y
@@ -200,7 +201,7 @@ def all_experiment(num, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y):
         save_list.append(str)
 
 
-all_experiment(90, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y)
+all_experiment(100, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y)
 # 准备写入CSV的数据
 rows = []
 for item in save_list:

@@ -1,5 +1,5 @@
+from create_feature import region_feature,chem_feature
 import numpy as np
-from create_feature import chem_feature
 from read_pdb import all
 from sklearn.model_selection import StratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
@@ -140,8 +140,13 @@ H1_X, H1_y = chem_feature('H1N1')
 H3_X, H3_y = chem_feature('H3N2')
 H5_X, H5_y = chem_feature('H5N1')
 
+# 获取80维向量
+H1_80, _ = region_feature('H1N1')
+H3_80, _ = region_feature('H3N2')
+H5_80, _ = region_feature('H5N1')
 
-def all_experiment(num, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y):
+
+def all_experiment(num, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y,H1_80,H3_80,H5_80):
 
     # 取前n个位置,再按原来的相对顺序
     H1_X, H1_y = H1_X[:, sorted(H1_list[0:num]), :], H1_y
@@ -153,6 +158,12 @@ def all_experiment(num, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y):
     H3_X = np.mean(H3_X, axis=1)
     H5_X = np.mean(H5_X, axis=1)
 
+    H1_80[:,0:8]=H1_X
+    H3_80[:, 0:8] = H3_X
+    H5_80[:, 0:8] = H5_X
+
+    H1_X,H3_X,H5_X=H1_80,H3_80,H5_80
+    print(H1_X.shape)
     feature_list = [H1_X, H3_X, H5_X]
     label_list = [H1_y, H3_y, H5_y]
     # 单亚型的交叉验证
@@ -161,12 +172,14 @@ def all_experiment(num, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y):
     all_metric = []
     # 单亚型五折交叉验证
     for i in range(3):
+        print(i)
         metric = five_fold(feature_list[i], label_list[i], 5)
         metric['model'] = f"{subtype[i]}->self"
         all_metric.append(metric)
     for i in range(3):
         for j in range(3):
             if i != j:
+                print(i,j)
                 val_metric, test_metric = cross_subtype(feature_list[i], label_list[i],
                                                         feature_list[j], label_list[j])
                 val_metric['model'] = f'{subtype[i]}->{subtype[j]} 50%val'
@@ -174,6 +187,7 @@ def all_experiment(num, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y):
                 all_metric.append(val_metric)
                 all_metric.append(test_metric)
     for i in range(3):
+        print(i)
         trainX_list = [feature_list[j] for j in range(3) if j != i]
         trainy_list = [label_list[j] for j in range(3) if j != i]
 
@@ -191,13 +205,13 @@ def all_experiment(num, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y):
     # 输出所有实验的评估指标
     print(f'algorithm,num,model,param,accuracy,precision,recall,f1,auc')
     for metric in all_metric:
-        str = f'RF,{num},{metric["model"]},{metric["param"]},{metric["accuracy"]:.4f},{metric["precision"]:.4f},{metric["recall"]:.4f},{metric["f1"]:.4f},{metric["auc"]:.4f}'
+        str = f'RF_fusion,{num},{metric["model"]},{metric["param"]},{metric["accuracy"]:.4f},{metric["precision"]:.4f},{metric["recall"]:.4f},{metric["f1"]:.4f},{metric["auc"]:.4f}'
         print(str)
         save_list.append(str)
 
 
 
-all_experiment(100, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y)
+all_experiment(100, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y,H1_80,H3_80,H5_80)
 # 准备写入CSV的数据
 rows = []
 for item in save_list:

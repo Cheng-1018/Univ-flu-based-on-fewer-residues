@@ -48,7 +48,7 @@ def five_fold(X, y, n_splits):
     f1 /= n_splits
     auc /= n_splits
 
-    return {'accuracy': acc, 'auc': auc, 'precision': precision, 'recall': recall, 'f1': f1}
+    return {'param':'','accuracy': acc, 'auc': auc, 'precision': precision, 'recall': recall, 'f1': f1}
 
 
 def cross_subtype(train_X, train_y, val_test_X, val_test_y):
@@ -118,28 +118,14 @@ def cross_subtype(train_X, train_y, val_test_X, val_test_y):
     return val_metric, test_metric
 
 
-
-# 由距离排序后的氨基酸索引
-H1_dist = all('H1N1')
-H3_dist = all('H3N2')
-H5_dist = all('H5N1')
-
-# 按照距离排序字典
-H1_list = [k for k, v in sorted(H1_dist.items(), key=lambda item: item[1])]
-H3_list = [k for k, v in sorted(H3_dist.items(), key=lambda item: item[1])]
-H5_list = [k for k, v in sorted(H5_dist.items(), key=lambda item: item[1])]
-
-intersection_H1 = list(set(sorted(H1_list[0:320])[0:190]) & set(H1_list[0:90]))
-intersection_H3 = list(set(sorted(H3_list[0:320])[0:190]) & set(H3_list[0:90]))
-intersection_H5 = list(set(sorted(H5_list[0:320])[0:190]) & set(H5_list[0:90]))
-save_list = [f'algorithm,num,model,param,accuracy,precision,recall,f1,auc']
+save_list = []
 
 # 获取特征矩阵
 H1_X, H1_y = region_feature('H1N1')
 H3_X, H3_y = region_feature('H3N2')
 H5_X, H5_y = region_feature('H5N1')
 
-
+print(H5_X.shape)
 def all_experiment(num, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y):
 
     feature_list = [H1_X, H3_X, H5_X]
@@ -150,12 +136,14 @@ def all_experiment(num, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y):
     all_metric = []
     # 单亚型五折交叉验证
     for i in range(3):
+        print(f"{subtype[i]}->self")
         metric = five_fold(feature_list[i], label_list[i], 5)
         metric['model'] = f"{subtype[i]}->self"
         all_metric.append(metric)
     for i in range(3):
         for j in range(3):
             if i != j:
+                print(f'{subtype[i]}->{subtype[j]} 50%val')
                 val_metric, test_metric = cross_subtype(feature_list[i], label_list[i],
                                                         feature_list[j], label_list[j])
                 val_metric['model'] = f'{subtype[i]}->{subtype[j]} 50%val'
@@ -163,6 +151,7 @@ def all_experiment(num, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y):
                 all_metric.append(val_metric)
                 all_metric.append(test_metric)
     for i in range(3):
+        print(f'{cross_stype[i]} 50%val')
         trainX_list = [feature_list[j] for j in range(3) if j != i]
         trainy_list = [label_list[j] for j in range(3) if j != i]
 

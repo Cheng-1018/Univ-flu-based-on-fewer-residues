@@ -1,4 +1,5 @@
 from create_feature import chem_feature
+from read_pdb import all
 from sklearn import svm
 from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.metrics import (
@@ -135,7 +136,7 @@ H5_list = [k for k, v in sorted(H5_dist.items(), key=lambda item: item[1])]
 intersection_H1 = list(set(sorted(H1_list[0:320])[0:190]) & set(H1_list[0:90]))
 intersection_H3 = list(set(sorted(H3_list[0:320])[0:190]) & set(H3_list[0:90]))
 intersection_H5 = list(set(sorted(H5_list[0:320])[0:190]) & set(H5_list[0:90]))
-save_list = [f'algorithm,num,model,param,accuracy,precision,recall,f1,auc']
+save_list = []
 
 # 获取特征矩阵
 H1_X, H1_y = chem_feature('H1N1')
@@ -198,7 +199,8 @@ def all_experiment(num, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y):
         save_list.append(str)
 
 
-all_experiment(90, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y)
+
+all_experiment(100, H1_X, H1_y, H3_X, H3_y, H5_X, H5_y)
 # 准备写入CSV的数据
 rows = []
 for item in save_list:

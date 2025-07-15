@@ -299,6 +299,7 @@ def region_feature(Name):
             relation.append(int(parts[2]))
     # feature = [matrix.flatten() for matrix in feature]#展平
     region_dict = region(Name)
+    feature=np.array(feature)
     new_fea = np.zeros((feature.shape[0], 10, 8))
     for region_id, list in region_dict.items():
         region_fea = feature[:, list, :]
