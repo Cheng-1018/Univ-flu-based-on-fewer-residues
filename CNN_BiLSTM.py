@@ -340,8 +340,8 @@ def single_experiment(i, j, feature_lists, label_lists):
 
         if auc_acc_mean > m:
             m = auc_acc_mean
-            best_val_metric[f'{subtype[i]}->{subtype[j]} 60%val'] = val_metric  # 更新验证集最佳指标
-            current_test_metric[f'{subtype[i]}->{subtype[j]} 40%test'] = test_metric  # 更新测试集当前指标指标
+            best_val_metric[f'{subtype[i]}->{subtype[j]} 50%val'] = val_metric  # 更新验证集最佳指标
+            current_test_metric[f'{subtype[i]}->{subtype[j]} 50%test'] = test_metric  # 更新测试集当前指标指标
         else:
             early_num += 1
             if early_num > 5:
@@ -428,8 +428,8 @@ def double_experiment(i, feature_lists, label_lists):
 
         if auc_acc_mean > m:
             m = auc_acc_mean
-            best_val_metric[f'{subtype[i]} 60%val'] = val_metric  # 更新验证集最佳指标
-            current_test_metric[f'{subtype[i]} 40%test'] = test_metric  # 更新此时的测试集指标
+            best_val_metric[f'{subtype[i]} 50%val'] = val_metric  # 更新验证集最佳指标
+            current_test_metric[f'{subtype[i]} 50%test'] = test_metric  # 更新此时的测试集指标
         else:
             early_num += 1
             if early_num > 5:
@@ -504,7 +504,7 @@ def try_num(num, H1_fea, H1_lab, H3_fea, H3_lab, H5_fea, H5_lab):
             recall += best_metric0[f'{subtype[i]}->self{j + 1}fold']['recall']
             f1 += best_metric0[f'{subtype[i]}->self{j + 1}fold']['f1']
             auc += best_metric0[f'{subtype[i]}->self{j + 1}fold']['auc']
-            all_metric.append(best_metric0)
+            # all_metric.append(best_metric0)
         avg_loss /= 5
         accuracy /= 5
         precision /= 5

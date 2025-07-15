@@ -135,7 +135,7 @@ df_univ_val_mean = pd.DataFrame({
     'val_auc_mean': [df_univ_val['auc'].mean()],
     'val_auc_var': [df_univ_val['auc'].var()]
 })
-print('Univ',
+print('Univ-Flu',
       df_univ_val_mean['val_acc_mean'].values,
       df_univ_val_mean['val_auc_mean'].values)
 df_univ_val_mean['average']=(df_univ_val_mean['val_acc_mean']+df_univ_val_mean['val_auc_mean'])/2
